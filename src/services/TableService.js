@@ -1,5 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { getStorage, ref, uploadBytes, listAll } from "firebase/storage";
+import { v4 } from "uuid";
 import {
   getFirestore,
   doc,
@@ -12,6 +14,7 @@ import {
   addDoc,
   updateDoc,
 } from "firebase/firestore";
+import { useEffect } from "react";
 const firebaseConfig = {
   apiKey: "AIzaSyAp98ZLrNuaGzMWv53xewmGTsRrNVybp_g",
   authDomain: "admin-dashboard-525c0.firebaseapp.com",
@@ -24,7 +27,22 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 getAnalytics(app);
+const storage = getStorage(app);
 const db = getFirestore();
+const imageListRef = ref(storage, "/images");
+
+const uploadImage = (ImageUpload) => {
+  console.log(`images/${ImageUpload.name + v4()}`);
+  if (ImageUpload == null) return;
+  const imageRef = ref(storage, `images/${ImageUpload.name + v4()}`);
+  uploadBytes(imageRef, ImageUpload).then(() => alert("Image uploaded "));
+};
+
+const getImage = () => {
+  listAll(imageListRef).then((res) => {
+    console.log(res);
+  });
+};
 
 const usersList = async () => {
   const usersSnap = await getDocs(collection(db, "users"));
@@ -56,4 +74,4 @@ const handleTable = (props) => {
   return props ? "users" : "products";
 };
 
-export { usersList, handleTable, productsList };
+export { usersList, handleTable, productsList, uploadImage, getImage };

@@ -3,6 +3,7 @@ import Aside from "./components/Aside";
 import Header from "./components/Header";
 import Main from "./components/Main";
 import Test from "./components/test";
+import UploadTest from "./components/UploadTest";
 import { useState } from "react";
 
 function App() {
@@ -13,9 +14,11 @@ function App() {
   console.log(type);
   return (
     <div className="app">
-      <Aside handletype={(val) => handleType(val)} />
+      {/* <Aside handletype={(val) => handleType(val)} />
       <Header />
-      <Main list={type} />
+      <Main list={type} /> */}
+
+      <UploadTest />
     </div>
     // <Test />
   );
