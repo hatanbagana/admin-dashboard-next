@@ -8,7 +8,7 @@ export default function UploadTest() {
     <div>
       <input type="file" onChange={(e) => setImageUpload(e.target.files[0])} />
       <button onClick={() => uploadImage(ImageUpload)}>Upload Image</button>
-      {/* <button onClick={getImage}>Get Image</button> */}
+      <button onClick={getImage}>Get Image</button>
     </div>
   );
 }

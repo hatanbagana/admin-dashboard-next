@@ -4,21 +4,24 @@ import Header from "./components/Header";
 import Main from "./components/Main";
 import Test from "./components/test";
 import UploadTest from "./components/UploadTest";
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import { getImage } from "./services/TableService";
 function App() {
-  const [type, setType] = useState("user");
+  const [type, setType] = useState("users");
   const handleType = (val) => {
     setType(val);
   };
   console.log(type);
+  useEffect(() => {
+    console.log("aa");
+  }, []);
   return (
     <div className="app">
-      {/* <Aside handletype={(val) => handleType(val)} />
+      <Aside handletype={(val) => handleType(val)} />
       <Header />
-      <Main list={type} /> */}
+      <Main list={type} />
 
-      <UploadTest />
+      {/* <UploadTest /> */}
     </div>
     // <Test />
   );
