@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { usersList, productsList, handleTable } from "../services/TableService";
 import {
   uploadImage,
-  createData,
+  // createData,
   deleteData,
-  updateData,
-  deleteFromFirebase,
 } from "../services/TableService";
+import { otherServices } from "../services/otherServices";
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 import EditIcon from "@mui/icons-material/Edit";
 import {
@@ -44,16 +42,22 @@ export default function Dashboard_table(props) {
   const [temp, setTemp] = useState([]);
   const [imgsource, setImageSource] = useState(null);
   const [handledis, setHandleDis] = useState(false);
-  console.log(imgsource);
   const handleOpen = () => setOpen(true);
   const handleOpen1 = () => setOpen1(true);
   const handleClose = () => setOpen(false);
   const handleClose1 = () => setOpen1(false);
 
   useEffect(() => {
-    usersList().then((data) => setUsers(data));
-    productsList().then((data) => setProducts(data));
+    otherServices
+      .getUsers()
+      .then((res) => res.json())
+      .then((data) => setUsers(data.data));
+    otherServices
+      .getProducts()
+      .then((res) => res.json())
+      .then((data) => setProducts(data.data));
   }, []);
+
   return (
     <>
       <TableContainer
@@ -106,11 +110,11 @@ export default function Dashboard_table(props) {
                   return (
                     <TableRow key={index}>
                       <TableCell>{index + 1}</TableCell>
-                      <TableCell>{list.Name}</TableCell>
-                      <TableCell>{list.email}</TableCell>
-                      <TableCell>{list.phone}</TableCell>
+                      <TableCell>{list.name}</TableCell>
+                      <TableCell>{list.mail}</TableCell>
+                      <TableCell>{list.phoneNumber}</TableCell>
                       <TableCell>
-                        <img src={`${list.imgSrc}`} alt="" />
+                        <img src={`${list.img}`} alt={`${list.name}`} />
                       </TableCell>
                       <TableCell>
                         <DeleteForeverOutlinedIcon
@@ -147,8 +151,10 @@ export default function Dashboard_table(props) {
                   return (
                     <TableRow key={index}>
                       <TableCell>{index + 1}</TableCell>
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell>{list.productName}</TableCell>
+                      <TableCell>
+                        <img src={`${list.img}`} alt={`${list.name}`} />
+                      </TableCell>
+                      <TableCell>{list.name}</TableCell>
                       <TableCell>{list.price}</TableCell>
                       <TableCell>{list.recipe}</TableCell>
                       <TableCell>
@@ -211,21 +217,22 @@ export default function Dashboard_table(props) {
                   onSubmit={(e) => {
                     e.preventDefault();
                     console.log(e.target[6].value);
-                    createData(
-                      {
-                        Name: e.target[0].value,
-                        email: e.target[2].value,
-                        phone: e.target[4].value,
-                        imgSrc: imgsource,
-                      },
-                      "users"
-                    ).then((res) => {
-                      if (res !== null) {
-                        handleClose();
-                      } else {
-                        alert("err");
-                      }
-                    });
+                    otherServices
+                      .createData("http://localhost:3000/api/users", {
+                        name: e.target[0].value,
+                        mail: e.target[2].value,
+                        phoneNumber: e.target[4].value,
+                        password: e.target[6].value,
+                        img: imgsource,
+                      })
+                      .then((res) => {
+                        console.log(res);
+                        if (res.message == "success") {
+                          handleClose();
+                        } else {
+                          alert("err");
+                        }
+                      });
                   }}
                 >
                   <TextField
@@ -252,11 +259,20 @@ export default function Dashboard_table(props) {
                     label="Phone"
                     variant="outlined"
                   />
+                  <TextField
+                    required
+                    disabled={handledis}
+                    sx={{ mb: 2, width: "100%" }}
+                    id="outlined-basic"
+                    label="Password"
+                    variant="outlined"
+                  />
                   <label htmlFor="" id="image">
                     Upload Image
                   </label>
 
                   <input
+                    multiple
                     type="file"
                     onChange={async (e) => {
                       setHandleDis(true);
@@ -280,19 +296,20 @@ export default function Dashboard_table(props) {
                 <form
                   action=""
                   onSubmit={(e) => {
-                    createData(
-                      {
-                        productName: e.target[0].value,
+                    e.preventDefault();
+                    otherServices
+                      .createData("http://localhost:3000/api/products", {
+                        name: e.target[0].value,
                         price: e.target[2].value,
                         recipe: e.target[4].value,
-                        imgSrc: imgsource,
-                      },
-                      "products"
-                    ).then((res) => {
-                      if (res !== null) {
-                        handleClose();
-                      }
-                    });
+                        img: imgsource,
+                      })
+                      .then((res) => {
+                        console.log(res);
+                        if (res.message == "success") {
+                          handleClose();
+                        }
+                      });
                     e.preventDefault();
                     uploadImage(e.target[6].files[0], props.list);
                   }}
@@ -368,20 +385,20 @@ export default function Dashboard_table(props) {
                 <form
                   action=""
                   onSubmit={(e) => {
-                    updateData(
-                      {
-                        Name: e.target[0].value,
-                        email: e.target[2].value,
-                        phone: e.target[4].value,
-                        imgSrc: imgsource,
-                        id: temp.id,
-                      },
-                      "users"
-                    ).then((res) => {
-                      if (res !== null) {
-                        handleClose();
-                      }
-                    });
+                    otherServices
+                      .updateData("http://localhost:3000/api/users", {
+                        name: e.target[0].value,
+                        mail: e.target[2].value,
+                        phoneNumber: e.target[4].value,
+                        img: imgsource,
+                        _id: temp._id,
+                      })
+                      .then((res) => {
+                        console.log(res);
+                        if (res.message == "success") {
+                          handleClose();
+                        }
+                      });
                     e.preventDefault();
                     uploadImage(e.target[6].files[0], props.list);
                   }}
@@ -391,21 +408,21 @@ export default function Dashboard_table(props) {
                     id="outlined-basic"
                     label="Name"
                     variant="outlined"
-                    defaultValue={`${temp.Name}`}
+                    defaultValue={`${temp.name}`}
                   />
                   <TextField
                     sx={{ mb: 2, width: "100%" }}
                     id="outlined-basic"
                     label="Mail"
                     variant="outlined"
-                    defaultValue={`${temp.email}`}
+                    defaultValue={`${temp.mail}`}
                   />
                   <TextField
                     sx={{ mb: 2, width: "100%" }}
                     id="outlined-basic"
                     label="Phone"
                     variant="outlined"
-                    defaultValue={`${temp.phone}`}
+                    defaultValue={`${temp.phoneNumber}`}
                   />
                   <label htmlFor="" id="image">
                     Upload Image
@@ -429,20 +446,20 @@ export default function Dashboard_table(props) {
                 <form
                   action=""
                   onSubmit={(e) => {
-                    updateData(
-                      {
-                        productName: e.target[0].value,
+                    otherServices
+                      .updateData("http://localhost:3000/api/products", {
+                        name: e.target[0].value,
                         price: e.target[2].value,
                         recipe: e.target[4].value,
-                        imgSrc: imgsource,
-                        id: temp.id,
-                      },
-                      "products"
-                    ).then((res) => {
-                      if (res !== null) {
-                        handleClose();
-                      }
-                    });
+                        img: imgsource,
+                        _id: temp._id,
+                      })
+                      .then((res) => {
+                        console.log(res.message);
+                        if (res.message == "success") {
+                          handleClose();
+                        }
+                      });
                     e.preventDefault();
                     uploadImage(e.target[6].files[0], props.list);
                   }}
@@ -452,7 +469,7 @@ export default function Dashboard_table(props) {
                     id="outlined-basic"
                     label="Product Name"
                     variant="outlined"
-                    defaultValue={`${temp.productName}`}
+                    defaultValue={`${temp.name}`}
                   />
                   <TextField
                     sx={{ mb: 2, width: "100%" }}
